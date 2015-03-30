@@ -38,7 +38,7 @@ DBP=$(pwgen -n 8 1)
 DBN=$(echo $DOMAINNAME | sed 's/\./_/g')
 DBN=$(echo $DBN | sed 's/\-/__/g')
 
-# mkdir -p $DOCUMENTROOT
+mkdir -p $DOCUMENTROOT
 
 # --account-name
 # A=xxxx
@@ -92,6 +92,13 @@ a2ensite $DOMAINNAME
 service apache2 reload
 
 # ------------------------------------------------------------------------
+# is drush?
+# ------------------------------------------------------------------------
+if [ -z "`which drush 2>/dev/null`" ]; then
+install_drush7
+fi
+
+# ------------------------------------------------------------------------
 # Pobranie Drupala
 # ------------------------------------------------------------------------
 cd /var/www
@@ -115,10 +122,6 @@ chmod a+w sites/default/services.yml
 # ------------------------------------------------------------------------
 # Instalacja Drupala poprzez drush'a'
 # ------------------------------------------------------------------------
-if [ -z "`which drush 2>/dev/null`" ]; then
-install_drush7
-fi
-
 drush site-install -y standard --db-url=mysql://$DBU:$DBP@localhost:3306/$DBN --site-name="$DOMAINNAME" --site-mail=$D --account-mail=$C --account-name=$A --account-pass=$B
 #echo "\$base_url = 'http://$DOMAINNAME';" >> sites/default/settings.php
 
