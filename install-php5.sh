@@ -46,7 +46,7 @@ END
 cd /var/www/$(hostname -f)
 wget https://raw.github.com/amnuts/opcache-gui/master/index.php -O php-op.php
 
-yum install phpmyadmin
+yum install -y phpmyadmin
 apachectl graceful
 # konfiguracja:
 # https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-with-apache-on-a-centos-7-server
