@@ -77,8 +77,8 @@ cat > /etc/httpd/conf.d/$DOMAINNAME.conf <<END
   DocumentRoot $DOCUMENTROOT
   ServerName $DOMAINNAME
   ServerAlias www.$DOMAINNAME
-  ErrorLog \${APACHE_LOG_DIR}/$DOMAINNAME-error.log
-  CustomLog \${APACHE_LOG_DIR}/access.log vhost_combined
+  #ErrorLog \${APACHE_LOG_DIR}/$DOMAINNAME-error.log
+  #CustomLog \${APACHE_LOG_DIR}/access.log vhost_combined
   # ProxyPassMatch ^/(.*\.php(/.*)?)$ fcgi://127.0.0.1:9000/var/www/$DOMAINNAME
   <Directory "$DOCUMENTROOT">
     Options Indexes FollowSymLinks MultiViews
