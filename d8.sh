@@ -38,7 +38,7 @@ DBP=$(pwgen -n 8 1)
 DBN=$(echo $DOMAINNAME | sed 's/\./_/g')
 DBN=$(echo $DBN | sed 's/\-/__/g')
 
-mysql -e "use $DBN"
+mysql -e "use $DBN" 2>/dev/null
 OUT=$?
 if [ $OUT -eq 0 ]; then
   echo "Baza danych instnieje"
