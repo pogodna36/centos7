@@ -22,22 +22,24 @@ upload_max_filesize = 20M
 post_max_size = 20M
 END
 
+# gcc i make wypagane w czasie kompilacji uploadprogress
+if [ -z "`which gcc 2>/dev/null`" ]; then
+yum install -y gcc
+fi
+
+if [ -z "`which make 2>/dev/null`" ]; then
+yum install -y make
+fi
 
 pecl install uploadprogress
 cat > /etc/php.d/uploadprogress.ini <<END
 extension=uploadprogress.so
 END
 
-cat >> /etc/php5/mods-available/opcache.ini <<END
-opcache.memory_consumption=64
-opcache.max_accelerated_files=5000
-END
-
-if [[ $(apachectl configtest 2>&1) = "Syntax OK" ]]; then
-apachectl restart
-else
-apachectl configtest
-fi
+# cat >> /etc/php5.d/opcache.ini <<END
+# opcache.memory_consumption=64
+# opcache.max_accelerated_files=5000
+# END
 
 # install_opcache_monitor
 cd /var/www/$(hostname -f)
@@ -60,3 +62,10 @@ apachectl graceful
 # Alias /phpmyadmin /usr/share/phpMyAdmin
 # niżej przykładowy alias:
 # Alias /mysql-admin /usr/share/phpmyadmin
+
+if [[ $(apachectl configtest 2>&1) = "Syntax OK" ]]; then
+apachectl restart
+apachectl status
+else
+apachectl configtest
+fi
