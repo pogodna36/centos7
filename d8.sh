@@ -71,7 +71,7 @@ echo "DBN: $DBN DBU: $DBU DBP: $DBP" >> $DBN.pass
 # ------------------------------------------------------------------------
 # Apache2
 # ------------------------------------------------------------------------
-cat > /etc/apache2/sites-available/$DOMAINNAME.conf <<END
+cat > /etc/httpd/conf.d/$DOMAINNAME.conf <<END
 <VirtualHost *:80>
   ServerAdmin admin@$DOMAINNAME
   DocumentRoot $DOCUMENTROOT
@@ -88,8 +88,7 @@ cat > /etc/apache2/sites-available/$DOMAINNAME.conf <<END
 </VirtualHost>
 END
 
-a2ensite $DOMAINNAME
-service apache2 reload
+apachectl graceful
 
 # ------------------------------------------------------------------------
 # is drush?
