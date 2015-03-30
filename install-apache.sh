@@ -4,7 +4,7 @@
 # Instalacja Apache2 na CentOS 7
 #------------------------------- 
 
-yum install httpd
+yum install -y httpd
 systemctl enable httpd.service
 systemctl start httpd.service
 
