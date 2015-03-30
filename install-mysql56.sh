@@ -19,7 +19,7 @@ service mysql start
 elif [ -f /etc/centos-release ]; then
 wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
 rpm -Uvh mysql-community-release-el7-5.noarch.rpm
-yum install mysql-community-server
+yum install -y mysql-community-server
 cat >> /etc/my.cnf <<END
 !includedir /etc/my.cnf.d/
 END
