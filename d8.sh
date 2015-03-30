@@ -37,6 +37,11 @@ DBU=$(pwgen -n 8 1)
 DBP=$(pwgen -n 8 1)
 DBN=$(echo $DOMAINNAME | sed 's/\./_/g')
 DBN=$(echo $DBN | sed 's/\-/__/g')
+if ! mysql -u root -e "use $DBN"; then
+  echo "Baza danych instnieje"
+  exit 1
+fi
+
 
 mkdir -p $DOCUMENTROOT
 
