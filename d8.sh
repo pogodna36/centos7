@@ -115,6 +115,10 @@ chmod a+w sites/default/services.yml
 # ------------------------------------------------------------------------
 # Instalacja Drupala poprzez drush'a'
 # ------------------------------------------------------------------------
+if [ -z "`which drush 2>/dev/null`" ]; then
+install_drush7
+fi
+
 drush site-install -y standard --db-url=mysql://$DBU:$DBP@localhost:3306/$DBN --site-name="$DOMAINNAME" --site-mail=$D --account-mail=$C --account-name=$A --account-pass=$B
 #echo "\$base_url = 'http://$DOMAINNAME';" >> sites/default/settings.php
 
@@ -155,3 +159,18 @@ done
 
 drush cache-rebuild
 echo "Zainstalowano $DOMAINNAME"
+
+
+function install_drush7 {
+  # Install Composer globally (if needed).
+  curl -sS https://getcomposer.org/installer | php
+  mv composer.phar /usr/local/bin/composer
+  # Add Composer's global bin directory to the system PATH (recommended):
+  sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+  source $HOME/.bashrc
+  # To install Drush 7.x (dev) which is required for Drupal 8:
+  composer global require drush/drush:dev-master
+
+  drush status
+  drush dl drush_language
+}
