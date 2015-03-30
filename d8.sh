@@ -38,6 +38,7 @@ DBP=$(pwgen -n 8 1)
 DBN=$(echo $DOMAINNAME | sed 's/\./_/g')
 DBN=$(echo $DBN | sed 's/\-/__/g')
 
+# If the database exists, OUT będzie równe 0 (polecenie zakończy działanie bez błędu).
 mysql -e "use $DBN" 2>/dev/null
 OUT=$?
 if [ $OUT -eq 0 ]; then
