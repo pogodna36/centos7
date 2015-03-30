@@ -2,10 +2,11 @@
 
 # Instalujemy po MySQL i Apache2
 
+# @see https://webtatic.com/packages/php56/
 rpm -Uvh https://mirror.webtatic.com/yum/el7/epel-release.rpm
 rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
     
-yum install php56w php56w-opcache php56w-mysql php56w-gd php56w-pear php56-devel
+yum install -y php56w php56w-opcache php56w-mysql php56w-gd php56w-pear php56w-devel
 # @see https://webtatic.com/packages/php56/
 
 cat > /etc/php.d/zzz-p36.ini <<END
