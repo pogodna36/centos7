@@ -131,7 +131,7 @@ systemctl status mysql
 
 
 
-function show_mysql_variables() {
+# show_mysql_variables
 echo -n -e '\e[1;36m'
 echo -n Wartości wybranych zmiennych globalnych MySQL
 echo -e '\e[0m'
@@ -197,6 +197,5 @@ echo $'\n# CHARACTER AND COLLATION #'
 mysql -e "SHOW GLOBAL VARIABLES WHERE Variable_Name LIKE 'character_set%' 
 OR Variable_Name LIKE 'collation%'
 OR Variable_Name LIKE 'init_connect'"
-}
 
-$@
+# $@
