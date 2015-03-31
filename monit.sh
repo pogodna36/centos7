@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# @see http://www.tecmint.com/how-to-install-and-setup-monit-linux-process-and-services-monitoring-program/
+
 yum install monit
 systemctl enable monit
 systemctl start monit
