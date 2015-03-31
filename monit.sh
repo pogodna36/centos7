@@ -7,7 +7,7 @@ systemctl enable monit
 systemctl start monit
 
 # Edytujemy plik konfiguracyjny:
-#vi /etc/monitrc
+vi /etc/monitrc
 # Komentujemy ten fragment:
 <<FRAGMENT
 set httpd port 2812 and
