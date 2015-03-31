@@ -96,7 +96,11 @@ cat > /etc/httpd/conf.d/$DOMAINNAME.conf <<END
 </VirtualHost>
 END
 
-apachectl graceful
+if [[ $(apachectl configtest 2>&1) = "Syntax OK" ]]; then
+  apachectl graceful
+else
+  apachectl configtest
+fi
 
 # ------------------------------------------------------------------------
 # is drush?
@@ -157,6 +161,7 @@ echo "\$settings['trusted_host_patterns'] = array('^localhost$', '^$(echo $DOMAI
 
 #cp /home/marek/Git/p36_karol/current/d8/jquery.min.map $DOCUMENTROOT/core/assets/vendor/jquery
 
+# wyłączamy moduły
 drush pmu -y quickedit
 drush pmu -y contextual rdf
 
