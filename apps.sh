@@ -17,8 +17,8 @@ yum install -y mlocate
 updatedb
 yum install -y sysstat
 
-if [ -z "`which rsyslogd 2>/dev/null`" ]; then
-yum install -y chronyd
+if [ -z "`which chronyd 2>/dev/null`" ]; then
+  yum install -y chronyd
 fi
 
 wget http://www.pixelbeat.org/scripts/ps_mem.py -O ~/ps_mem.py
@@ -26,7 +26,7 @@ chmod u+x *.py
 # ./ps_mem.py
 
 if [ -z "`which rsyslogd 2>/dev/null`" ]; then
-yum install -y rsyslog
+  yum install -y rsyslog
 fi
 
 yum install -y git
@@ -37,12 +37,6 @@ yum install -y gcc make
 
 yum install -y jpegoptim
 
-
-
 # yum groupinstall "Development Tools"
 
 
-# ------------------------------------------------------------------------
-# Zmanda Recovery Manager for MySQL (EPEL)
-# ------------------------------------------------------------------------
-# yum install MySQL-zrm
