@@ -2,14 +2,9 @@
 
 # @see http://www.tecmint.com/how-to-install-and-setup-monit-linux-process-and-services-monitoring-program/
 
-yum install monit
+yum install -y monit
 systemctl enable monit
 systemctl start monit
-
-
-
-# Sprawdzanie poprawności konfiguracji:
-monit -t
 
 # Edytujemy plik konfiguracyjny:
 #vi /etc/monitrc
