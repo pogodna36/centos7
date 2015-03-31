@@ -1,57 +1,14 @@
 #!/bin/bash
 
-yum --security check-update
-
-cat /etc/redhat-release
-# CentOS Linux release 7.0.1406 (Core) 
-
+# yum --security check-update
+# cat /etc/redhat-release
 # netstat -pantu
 
-#-----------------------------------------------------------------------
-# timezone
-#-----------------------------------------------------------------------
-
-# @todo Nie każdy Ubuntu 14.04 ma timedatectl. VPS'y OVH Classic nie mają tej komendy,
-# natomiast VPS'y Cloud mają. Zapewne chodzi o sposób wirualizacji.
-# Please note that timedatectl command can be used only on a system booted with systemd.
-
-# Jaka strefa czasowa:
-# cat /etc/timezone
-# lub
-# timedatectl
-
-# Zmiana strefy czasowej w skrypcie:
+yum update
 timedatectl set-timezone Europe/Warsaw
-# Można też w sposób:
-# tzselect
-# dpkg-reconfigure tzdata
 
-
-#-----------------------------------------------------------------------
-# ssh port
-#-----------------------------------------------------------------------
-# Zmiana portu SSH
-vi /etc/ssh/sshd_config
-# If you want to change the port on a SELinux system, you have to tell
-# SELinux about this change.
-# semanage port -a -t ssh_port_t -p tcp #PORTNUMBER
-# Port 22022
-# AddressFamily any
-# ListenAddress 0.0.0.0
-# ListenAddress ::
-
-# ------------------------------------------------------------------------
-# Klucze ssh
-# ------------------------------------------------------------------------
-# Generujemy klucze na serwerze lokalnym:
-#ssh-keygen -t rsa
-# Kopiujemy klucz publiczny na serwer zdalny:
-#ssh-copy-id -i root@217.160.90.142
-
-#-----------------------------------------------------------------------
 # Linux tunnig
-#-----------------------------------------------------------------------
-cat >> /etc/sysctl.conf <<END
+cat >> /etc/sysctl.d/pogodna36.conf <<END
 # When kernel panic's, reboot after 10 second delay
 kernel.panic = 10
 kernel.panic_on_oops = 1
