@@ -59,9 +59,9 @@ END
 # You can make it done, by redirect stderr to stdout.
 if [[ $(apachectl configtest 2>&1) = "Syntax OK" ]]; then
   apachectl restart
-    else
-      apachectl configtest
-    fi
+else
+  apachectl configtest
+fi
     
 htpasswd -c /etc/httpd/.htsecret monter
 #echo 'monter:$apr1$s0h/6BzS$DcRU.....3MNXDxkoInSa/' > /etc/httpd/.htsecret
