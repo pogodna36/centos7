@@ -33,20 +33,20 @@ net.ipv4.tcp_synack_retries = 3
 END
 sysctl -p >> $LOG 2>&1
 
-yum install -y epel-release >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y sudo >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y curl >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y htop >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y mc >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y iotop >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y unzip >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y iftop >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum  install -y iptraf >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y pwgen >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y mlocate >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+install epel-release
+install sudo
+install curl
+install htop
+install mc
+install iotop
+install unzip
+install iftop
+install iptraf
+install pwgen
+install mlocate
 updatedb >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Updatedb error"
-yum install -y sysstat >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y chronyd >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+install -y sysstat >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+install -y chronyd >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
 wget http://www.pixelbeat.org/scripts/ps_mem.py -O ~/ps_mem.py >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
 chmod u+x *.py >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Chmod error"
 yum install -y rsyslog >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
