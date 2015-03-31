@@ -68,14 +68,3 @@ htpasswd -c /etc/httpd/.htsecret monter
 chmod 444 /etc/httpd/.htsecret
  
 # wyłączyć moduły niepotrzebne
-
-
-
-# ------------------------------------------------------------------------
-# SELinux i Apache
-# ------------------------------------------------------------------------
-getsebool -a | grep httpd
-setsebool -P httpd_can_network_connect_db=1
-setsebool -P httpd_can_sendmail=1
-setsebool -P httpd_unified=1
-setsebool -P httpd_can_network_connect=1
