@@ -32,6 +32,9 @@ sysctl -p
 
 # Nie zapominij o edycji pliku /etc/sysctl.conf
 
+
+echo ""
+echo ""
 echo "@see https://computing.llnl.gov/linux/slurm/high_throughput.html"
 echo "/proc/sys/fs/file-max: The maximum number of concurrently open files."
 echo "We recommend a limit of at least 32832."
@@ -46,3 +49,5 @@ echo "Defaults to 128. The value should be raised substantially to support burst
 echo "For example, to support a burst of 1024 requests, set somaxconn to 1024."
 echo "Na tym serwerze:"
 sysctl net.core.somaxconn
+
+echo "Wykonano skrypt $0" >> /var/log/instalka.log
