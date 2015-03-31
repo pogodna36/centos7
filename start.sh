@@ -8,7 +8,7 @@ yum update
 timedatectl set-timezone Europe/Warsaw
 
 # Linux tunnig
-cat >> /etc/sysctl.d/pogodna36.conf <<END
+cat >> /etc/sysctl.conf <<END
 # When kernel panic's, reboot after 10 second delay
 kernel.panic = 10
 kernel.panic_on_oops = 1
