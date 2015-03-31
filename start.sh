@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Parametry wywołania
+# $1 mysql password
+# $2 postfix root alias
+
 LOG=/root/log_script.log
 yum updatue -y >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Error in yum update"
 timedatectl set-timezone Europe/Warsaw
@@ -103,4 +107,169 @@ htpasswd -c /etc/httpd/.htsecret monter
 #echo 'monter:$apr1$s0h/6BzS$DcRU.....3MNXDxkoInSa/' > /etc/httpd/.htsecret
 chmod 444 /etc/httpd/.htsecret
 
+# MySQL 5.6
+wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
+rpm -Uvh mysql-community-release-el7-5.noarch.rpm
+yum install -y mysql-community-server >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] MySQL install error"
+cat >> /etc/my.cnf <<END
+!includedir /etc/my.cnf.d/
+END
+systemctl enable mysqld.service
+systemctl start mysqld.service
 
+mkdir /var/lib/mysql/binlogs
+chmod 770 /var/lib/mysql/binlogs
+chown mysql:mysql /var/lib/mysql/binlogs
+
+cat > $HOME/.my.cnf <<END
+[client]
+user=root
+password=$1
+END
+chmod 400 $HOME/.my.cnf
+
+mysql_secure_installation
+
+echo "Sprawdzenie konfiguracji MySQL"
+/usr/sbin/mysqld --help --verbose --skip-networking --pid-file=/var/run/mysqld/mysqld.pid 1>/dev/null
+
+MY_CNF=/etc/my.cnf.d/p36.cnf
+cat >> $MY_CNF <<END
+[mysqld]
+# MyISAM #
+key-buffer-size                = 32M
+myisam-recover                 = FORCE,BACKUP
+# SAFETY #
+max-allowed-packet             = 16M
+max-connect-errors             = 1000000
+# BINARY LOGGING #
+log-bin                        = /var/lib/mysql/binlogs/binlog
+expire-logs-days               = 14
+sync-binlog                    = 1
+ignore-db-dir                  = lost+found
+ignore-db-dir                  = binlogs
+# CACHES AND LIMITS #
+tmp-table-size                 = 32M
+max-heap-table-size            = 32M
+query-cache-type               = 0
+query-cache-size               = 0
+max-connections                = 500
+thread-cache-size              = 50
+open-files-limit               = 65535
+table-definition-cache         = 4096
+#table-open-cache              = 4096
+# INNODB #
+innodb-flush-method            = O_DIRECT
+innodb-log-files-in-group      = 2
+#innodb-log-file-size          = 128M
+innodb-flush-log-at-trx-commit = 1
+innodb-file-per-table          = 1
+#innodb-buffer-pool-size       = 2G
+# LOGGING #
+log-queries-not-using-indexes  = 1
+slow-query-log                 = 1
+# CHARACTER AND COLLATION #
+character-set-server           = utf8
+collation-server               = utf8_polish_ci
+init-connect                   = 'SET NAMES utf8'
+END
+
+# mysqltuner.pl - skrypt sprawdzający konfigurację MySQ
+cd $HOME
+git clone https://github.com/major/MySQLTuner-perl.git
+ln -s ~/MySQLTuner-perl/mysqltuner.pl ~/mysqltuner.pl
+
+systemctl restart mysql
+systemctl status mysql
+
+####################################################################################################
+# The table_open_cache and max_connections system variables affect the maximum number of files the server keeps open. 
+# @see http://dev.mysql.com/doc/refman/5.6/en/table-cache.html
+
+# table_open_cache - the number of open tables for all threads. Increasing this value increases 
+# the number of file descriptors that mysqld requires. You can check whether you need to increase
+# the table cache by checking the Opened_tables status variable.
+# @see http://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html
+
+## Konfiguaracja dla 2core 2G
+# table-open-cache               = 4096
+# innodb-log-file-size           = 128M
+# innodb-buffer-pool-size        = 1456M
+
+## Konfiguracja dla 4core 4G
+# table-open-cache               = 4096
+# innodb-log-file-size           = 128M
+# innodb-buffer-pool-size        = 2G
+
+## Konfiguracja dla 8core 16G
+# table-open-cache               = 10240
+# innodb-log-file-size           = 256M
+# innodb-buffer-pool-size        = 12G
+
+# PHP5
+rpm -Uvh https://mirror.webtatic.com/yum/el7/epel-release.rpm
+rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+    
+yum install -y php56w >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+yum install -y php56w-opcache >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+yum install -y php56w-mysql >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+yum install -y php56w-gd >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+yum install -y php56w-pear >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+yum install -y php56w-devel >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+
+cat > /etc/php.d/zzz-p36.ini <<END
+date.timezone = Europe/Warsaw
+mbstring.language=UTF-8
+mbstring.internal_encoding=UTF-8
+mbstring.http_input=pass
+mbstring.http_output=pass
+mbstring.detect_order=auto
+expose_php = Off
+error_reporting = E_ALL
+display_errors = On
+upload_max_filesize = 20M
+post_max_size = 20M
+END
+
+# gcc i make wypagane w czasie kompilacji uploadprogress
+if [ -z "`which gcc 2>/dev/null`" ]; then
+yum install -y gcc >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+fi
+
+if [ -z "`which make 2>/dev/null`" ]; then
+yum install -y make >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+fi
+
+pecl install uploadprogress >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+cat > /etc/php.d/uploadprogress.ini <<END
+extension=uploadprogress.so
+END
+
+# cat >> /etc/php5.d/opcache.ini <<END
+# opcache.memory_consumption=64
+# opcache.max_accelerated_files=5000
+# END
+
+# install_opcache_monitor
+cd /var/www/$(hostname -f)
+wget https://raw.github.com/amnuts/opcache-gui/master/index.php -O php-op.php >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+
+yum install -y phpmyadmin >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+apachectl restart
+
+if [[ $(apachectl configtest 2>&1) = "Syntax OK" ]]; then
+apachectl restart
+apachectl status
+else
+apachectl configtest
+fi
+
+# Postfix
+yum -y install postfix mailx >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+systemctl start postfix
+systemctl enable postfix
+echo "root: $2" >> /etc/aliases
+newaliases
+#vi /etc/postfix/main.cf
+# testowy email
+echo "This will go into the body of the mail." | mail -s "Hello world" root
