@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Parametry wywołania
-# $1 mysql password
-# $2 postfix root alias
+echo "Podaj hasło dla MYSQL: "
+read MYSQL_PASSWORD
+echo "Podaj alias dla poczty do root'a: "
+read ROOT_ALIAS
 
 LOG=/root/log_script.log
 yum updatue -y >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Error in yum update"
@@ -124,7 +125,7 @@ chown mysql:mysql /var/lib/mysql/binlogs
 cat > $HOME/.my.cnf <<END
 [client]
 user=root
-password=$1
+password=$MYSQL_PASSWORD
 END
 chmod 400 $HOME/.my.cnf
 
@@ -268,7 +269,7 @@ fi
 yum -y install postfix mailx >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
 systemctl start postfix
 systemctl enable postfix
-echo "root: $2" >> /etc/aliases
+echo "root: $ROOT_ALIAS" >> /etc/aliases
 newaliases
 #vi /etc/postfix/main.cf
 # testowy email
