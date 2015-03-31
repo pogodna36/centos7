@@ -2,8 +2,7 @@
 
 echo "Podaj hasło dla MYSQL: "
 read MYSQL_PASSWORD
-echo "Podaj alias dla poczty do root'a: "
-read ROOT_ALIAS
+
 
 function install {
 yum install -y $1 >> $LOG 2>&1
@@ -12,6 +11,27 @@ if [ $OUT -eq 0 ]; then
  echo -e "[\033[32mX\033[0m] $1 installed ok"
 else
   echo -e "[\033[31mX\033[0m] $1 install error"
+fi
+}
+
+function pecl_install {
+pecl install -y $1 >> $LOG 2>&1
+OUT=$?
+if [ $OUT -eq 0 ]; then
+ echo -e "[\033[32mX\033[0m] $1 installed ok"
+else
+  echo -e "[\033[31mX\033[0m] $1 install error"
+fi
+}
+
+LOG=/root/log_script.log
+function run {
+$1 >> $LOG 2>&1
+OUT=$?
+if [ $OUT -eq 0 ]; then
+ echo -e "[\033[32mX\033[0m] $1 run ok"
+else
+  echo -e "[\033[31mX\033[0m] $1 run error"
 fi
 }
 
@@ -44,19 +64,19 @@ install iftop
 install iptraf
 install pwgen
 install mlocate
-updatedb >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Updatedb error"
-install -y sysstat >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-install -y chronyd >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+run updatedb
+install sysstat
+install chronyd
 wget http://www.pixelbeat.org/scripts/ps_mem.py -O ~/ps_mem.py >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
 chmod u+x *.py >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Chmod error"
-yum install -y rsyslog >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y git >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y gcc >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y make >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y jpegoptim >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+install rsyslog
+install git
+install gcc
+install make
+install jpegoptim
 
 # Instalacja Apache2 na CentOS 7
-yum install -y httpd >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+install httpd
 systemctl enable httpd.service
 systemctl start httpd.service
 
@@ -123,7 +143,7 @@ chmod 444 /etc/httpd/.htsecret
 # MySQL 5.6
 wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
 rpm -Uvh mysql-community-release-el7-5.noarch.rpm
-yum install -y mysql-community-server >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] MySQL install error"
+install mysql-community-server
 cat >> /etc/my.cnf <<END
 !includedir /etc/my.cnf.d/
 END
@@ -223,12 +243,12 @@ systemctl status mysql
 rpm -Uvh https://mirror.webtatic.com/yum/el7/epel-release.rpm
 rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
     
-yum install -y php56w >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y php56w-opcache >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y php56w-mysql >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y php56w-gd >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y php56w-pear >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-yum install -y php56w-devel >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+install php56w
+install php56w-opcache
+install php56w-mysql
+install php56w-gd
+install php56w-pear
+install php56w-devel
 
 cat > /etc/php.d/zzz-p36.ini <<END
 date.timezone = Europe/Warsaw
@@ -244,16 +264,7 @@ upload_max_filesize = 20M
 post_max_size = 20M
 END
 
-# gcc i make wypagane w czasie kompilacji uploadprogress
-if [ -z "`which gcc 2>/dev/null`" ]; then
-yum install -y gcc >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-fi
-
-if [ -z "`which make 2>/dev/null`" ]; then
-yum install -y make >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-fi
-
-pecl install uploadprogress >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+pecl_install uploadprogress
 cat > /etc/php.d/uploadprogress.ini <<END
 extension=uploadprogress.so
 END
@@ -267,7 +278,7 @@ END
 cd /var/www/$(hostname -f)
 wget https://raw.github.com/amnuts/opcache-gui/master/index.php -O php-op.php >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
 
-yum install -y phpmyadmin >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+install phpmyadmin
 apachectl restart
 
 if [[ $(apachectl configtest 2>&1) = "Syntax OK" ]]; then
@@ -278,9 +289,12 @@ apachectl configtest
 fi
 
 # Postfix
-yum -y install postfix mailx >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+install postfix
+install mailx
 systemctl start postfix
 systemctl enable postfix
+echo "Podaj alias dla poczty do root'a: "
+read ROOT_ALIAS
 echo "root: $ROOT_ALIAS" >> /etc/aliases
 newaliases
 #vi /etc/postfix/main.cf
@@ -288,7 +302,7 @@ newaliases
 echo "This will go into the body of the mail." | mail -s "Hello world" root
 
 # Monit
-yum install -y monit >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+install monit
 systemctl enable monit
 systemctl start monit
 
