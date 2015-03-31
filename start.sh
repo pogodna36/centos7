@@ -50,4 +50,4 @@ echo "For example, to support a burst of 1024 requests, set somaxconn to 1024."
 echo "Na tym serwerze:"
 sysctl net.core.somaxconn
 
-echo "Wykonano skrypt $0" >> /var/log/instalka.log
+#echo "Wykonano skrypt $0" >> /var/log/instalka.log
