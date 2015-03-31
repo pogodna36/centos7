@@ -5,6 +5,18 @@ read MYSQL_PASSWORD
 echo "Podaj alias dla poczty do root'a: "
 read ROOT_ALIAS
 
+function install {
+yum install -y $1 >> $LOG 2>&1
+OUT=$?
+if [ $OUT -eq 0 ]; then
+ echo -e "[\033[32mX\033[0m] $1 installed ok"
+else
+  echo -e "[\033[31mX\033[0m] $1 install error"
+fi
+}
+
+
+
 LOG=/root/log_script.log
 yum updatue -y >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Error in yum update"
 timedatectl set-timezone Europe/Warsaw
