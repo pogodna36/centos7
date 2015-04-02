@@ -54,17 +54,17 @@ fi
 }
 
 #-----------------------------------------
-echo -e "[\033[33m*\033[0m] System update"
+echo -e "[\033[32m*\033[0m] System update .........."
 yum update -y >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Error in yum update"
 
 #
 #-----------------------------------------------
-echo -e "[\033[33m*\033[0m] Configure time zone"
+echo -e "[\033[32m*\033[0m] Configure time zone .........."
 timedatectl set-timezone Europe/Warsaw
 run timedatectl
 
 #-----------------------------------------
-echo -e "[\033[33m*\033[0m] System tuning"
+echo -e "[\033[32m*\033[0m] System tuning .........."
 cat >> $SYSCTL <<END
 # When kernel panic's, reboot after 10 second delay
 kernel.panic = 10
@@ -78,7 +78,7 @@ END
 run sysctl -p
 
 #------------------------------------------------------------
-echo -e "[\033[33m*\033[0m] Instalacja programów dodatkowych"
+echo -e "[\033[32m*\033[0m] Instalacja programów dodatkowych .........."
 install epel-release
 install sudo
 install curl
@@ -101,7 +101,7 @@ install make
 install jpegoptim
 
 # -----------------------------------------------------------
-echo -e "[\033[33m*\033[0m] Installing and configure Apache2"
+echo -e "[\033[32m*\033[0m] Installing and configure Apache2 .........."
 install httpd
 run systemctl enable httpd.service
 run systemctl start httpd.service
@@ -163,7 +163,7 @@ run chmod 444 /etc/httpd/.htsecret
 run apachectl status
 
 #--------------------------------------------------------------
-echo -e "[\033[33m*\033[0m] Installing and configure MySQL 5.6"
+echo -e "[\033[32m*\033[0m] Installing and configure MySQL 5.6 .........."
 run wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
 run rpm -Uvh mysql-community-release-el7-5.noarch.rpm
 install mysql-community-server
@@ -285,7 +285,7 @@ run systemctl status mysql
 # innodb-buffer-pool-size        = 12G
 
 #---------------------------------------------------------
-echo -e "[\033[33m*\033[0m] Installing and configure PHP5"
+echo -e "[\033[32m*\033[0m] Installing and configure PHP5 .........."
 run rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
     
 install php56w
@@ -329,7 +329,7 @@ reload_httpd
 run apachectl status
 
 #------------------------------------------------------------
-echo -e "[\033[33m*\033[0m] Installing and configure Postfix"
+echo -e "[\033[32m*\033[0m] Installing and configure Postfix .........."
 install postfix
 install mailx
 run systemctl start postfix
@@ -344,7 +344,7 @@ echo "This will go into the body of the mail." | mail -s "Hello world" root
 run postfix status
 
 #----------------------------------------------------------
-echo -e "[\033[33m*\033[0m] Installing and configure Monit"
+echo -e "[\033[32m*\033[0m] Installing and configure Monit .........."
 install monit
 run systemctl enable monit
 run systemctl start monit
@@ -396,3 +396,15 @@ else
 fi
 
 run monit status
+
+
+#-------------------------------------------------------
+echo -e "[\033[32m*\033[0m] Installing TCPDF .........."
+cd /var/www/$(hostname -f)
+wget http://sourceforge.net/projects/tcpdf/files/tcpdf_6_0_099.zip
+unzip tcpdf*
+rm -f tcpdf_6_0_*.zip
+mkdir tcpdf/images
+chmod 777 /var/www/$(hostname -f)/tcpdf/images
+cd ~
+
