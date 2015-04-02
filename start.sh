@@ -286,7 +286,6 @@ run systemctl status mysql
 
 #---------------------------------------------------------
 echo -e "[\033[33m*\033[0m] Installing and configure PHP5"
-run rpm -Uvh https://mirror.webtatic.com/yum/el7/epel-release.rpm
 run rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
     
 install php56w
