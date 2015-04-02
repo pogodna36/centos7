@@ -190,21 +190,21 @@ echo "Sprawdzenie konfiguracji MySQL"
 
 MEM_SIZE=$(grep -m 1 "MemTotal" /proc/meminfo | awk '{ print $2 }')
 if [ $MEM_SIZE -ge 16000000 ]; then
-  TABLE-OPEN-CACHE=10240
-  INNODB-LOG-FILE-SIZE=256M
-  INNODB-BUFFER-POOL-SIZE=12G
+  TABLE_OPEN_CACHE=10240
+  INNODB_LOG_FILE_SIZE=256M
+  INNODB_BUFFER_POOL_SIZE=12G
 elif [ $MEM_SIZE -ge 4000000 ]; then
-  TABLE-OPEN-CACHE=4096
-  INNODB-LOG-FILE-SIZE=128M
-  INNODB-BUFFER-POOL-SIZE=2G
+  TABLE_OPEN_CACHE=4096
+  INNODB_LOG_FILE_SIZE=128M
+  INNODB_BUFFER_POOL_SIZE=2G
 elif [ $MEM_SIZE -ge 2000000 ]; then
-  TABLE-OPEN-CACHE=4096
-  INNODB-LOG-FILE-SIZE=128M
-  INNODB-BUFFER-POOL-SIZE=1456M
+  TABLE_OPEN_CACHE=4096
+  INNODB_LOG_FILE_SIZE=128M
+  INNODB_BUFFER_POOL_SIZE=1456M
 else
-  TABLE-OPEN-CACHE=431
-  INNODB-LOG-FILE-SIZE=48M
-  INNODB-BUFFER-POOL-SIZE=128M
+  TABLE_OPEN_CACHE=431
+  INNODB_LOG_FILE_SIZE=48M
+  INNODB_BUFFER_POOL_SIZE=128M
 fi
 
 cat >> $MY_CNF <<END
@@ -230,14 +230,14 @@ max-connections                = 500
 thread-cache-size              = 50
 open-files-limit               = 65535
 table-definition-cache         = 4096
-table-open-cache              = $TABLE-OPEN-CACHE
+table-open-cache              = $TABLE_OPEN_CACHE
 # INNODB #
 innodb-flush-method            = O_DIRECT
 innodb-log-files-in-group      = 2
-innodb-log-file-size          = $INNODB-LOG-FILE-SIZE
+innodb-log-file-size          = $INNODB_LOG_FILE_SIZE
 innodb-flush-log-at-trx-commit = 1
 innodb-file-per-table          = 1
-innodb-buffer-pool-size       = $INNODB-BUFFER-POOL-SIZE
+innodb-buffer-pool-size       = $INNODB_BUFFER_POOL_SIZE
 # LOGGING #
 log-queries-not-using-indexes  = 1
 slow-query-log                 = 1
