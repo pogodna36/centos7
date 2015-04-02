@@ -82,7 +82,7 @@ install pwgen
 install mlocate
 run updatedb
 install sysstat
-install chronyd
+install chrony
 run wget http://www.pixelbeat.org/scripts/ps_mem.py -O ~/ps_mem.py
 run chmod u+x *.py
 install rsyslog
