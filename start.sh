@@ -180,6 +180,24 @@ mysql_secure_installation
 echo "Sprawdzenie konfiguracji MySQL"
 /usr/sbin/mysqld --help --verbose --skip-networking --pid-file=/var/run/mysqld/mysqld.pid 1>/dev/null >> $LOG
 
+if [ $MEM_SIZE -ge 16000000 ]; then
+  TABLE-OPEN-CACHE=10240
+  INNODB-LOG-FILE-SIZE=256M
+  INNODB-BUFFER-POOL-SIZE=12G
+elif [ $MEM_SIZE -ge 4000000 ]; then
+  TABLE-OPEN-CACHE=4096
+  INNODB-LOG-FILE-SIZE=128M
+  INNODB-BUFFER-POOL-SIZE=2G
+elif [ $MEM_SIZE -ge 2000000 ]; then
+  TABLE-OPEN-CACHE=4096
+  INNODB-LOG-FILE-SIZE=128M
+  INNODB-BUFFER-POOL-SIZE=1456M
+else
+  TABLE-OPEN-CACHE=431
+  INNODB-LOG-FILE-SIZE=48M
+  INNODB-BUFFER-POOL-SIZE=128M
+}
+
 cat >> $MY_CNF <<END
 [mysqld]
 # MyISAM #
@@ -237,21 +255,12 @@ run systemctl status mysql
 # the table cache by checking the Opened_tables status variable.
 # @see http://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html
 
-if [ $OUT -eq 0 ]; then
-  TABLE-OPEN-CACHE=4096
-  INNODB-LOG-FILE-SIZE=128M
-  INNODB-BUFFER-POOL-SIZE=1456M
-elif
-  TABLE-OPEN-CACHE=4096
-  INNODB-LOG-FILE-SIZE=128M
-  INNODB-BUFFER-POOL-SIZE=2G
-elif
-  TABLE-OPEN-CACHE=10240
-  INNODB-LOG-FILE-SIZE=256M
-  INNODB-BUFFER-POOL-SIZE=12G
 
-fi
-}
+
+
+
+
+
 
 ## Konfiguaracja dla 2core 2G
 # table-open-cache               = 4096
