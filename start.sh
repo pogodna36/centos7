@@ -209,18 +209,22 @@ fi
 
 cat >> $MY_CNF <<END
 [mysqld]
+
 # MyISAM #
 key-buffer-size                = 32M
 myisam-recover                 = FORCE,BACKUP
+
 # SAFETY #
 max-allowed-packet             = 16M
 max-connect-errors             = 1000000
+
 # BINARY LOGGING #
 log-bin                        = /var/lib/mysql/binlogs/binlog
 expire-logs-days               = 14
 sync-binlog                    = 1
 ignore-db-dir                  = lost+found
 ignore-db-dir                  = binlogs
+
 # CACHES AND LIMITS #
 tmp-table-size                 = 32M
 max-heap-table-size            = 32M
@@ -230,14 +234,16 @@ max-connections                = 500
 thread-cache-size              = 50
 open-files-limit               = 65535
 table-definition-cache         = 4096
-table-open-cache              = $TABLE_OPEN_CACHE
+table-open-cache               = $TABLE_OPEN_CACHE
+
 # INNODB #
 innodb-flush-method            = O_DIRECT
 innodb-log-files-in-group      = 2
-innodb-log-file-size          = $INNODB_LOG_FILE_SIZE
+innodb-log-file-size           = $INNODB_LOG_FILE_SIZE
 innodb-flush-log-at-trx-commit = 1
 innodb-file-per-table          = 1
-innodb-buffer-pool-size       = $INNODB_BUFFER_POOL_SIZE
+innodb-buffer-pool-size        = $INNODB_BUFFER_POOL_SIZE
+
 # LOGGING #
 log-queries-not-using-indexes  = 1
 slow-query-log                 = 1
