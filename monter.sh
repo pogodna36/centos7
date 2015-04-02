@@ -15,3 +15,5 @@ gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB8
 source ~/.rvm/scripts/rvm
 source ~/.bashrc
 rvm list
+gem install compass
+gem install bundler
