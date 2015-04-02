@@ -10,6 +10,7 @@ MY_PHP=/etc/php.d/zzz-p36.ini
 MY_MONIT=/etc/monit.d/zzz-p36
 
 function install {
+echo "... instaluję $1"
 yum install -y $1 >> $LOG 2>&1
 OUT=$?
 if [ $OUT -eq 0 ]; then
@@ -20,6 +21,7 @@ fi
 }
 
 function pecl_install {
+echo "... instaluję $1"
 pecl install -y $1 >> $LOG 2>&1
 OUT=$?
 if [ $OUT -eq 0 ]; then
@@ -41,6 +43,7 @@ fi
 }
 
 function run {
+echo "... uruchamiam $@"
 $@ >> $LOG 2>&1
 OUT=$?
 if [ $OUT -eq 0 ]; then
@@ -51,11 +54,17 @@ fi
 }
 
 #-----------------------------------------
-echo -e "[\033[33m*\033[0m] System update, timezone and tuning"
+echo -e "[\033[33m*\033[0m] System update"
 yum update -y >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Error in yum update"
+
+#
+#-----------------------------------------------
+echo -e "[\033[33m*\033[0m] Configure time zone"
 timedatectl set-timezone Europe/Warsaw
 run timedatectl
 
+#-----------------------------------------
+echo -e "[\033[33m*\033[0m] System tuning"
 cat >> $SYSCTL <<END
 # When kernel panic's, reboot after 10 second delay
 kernel.panic = 10
@@ -196,7 +205,7 @@ else
   TABLE-OPEN-CACHE=431
   INNODB-LOG-FILE-SIZE=48M
   INNODB-BUFFER-POOL-SIZE=128M
-}
+fi
 
 cat >> $MY_CNF <<END
 [mysqld]
