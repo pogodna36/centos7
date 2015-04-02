@@ -1,10 +1,11 @@
 #!/bin/bash
 
+cd ~
+
 LOG=/root/log_script.log
 SYSCTL=/etc/sysctl.conf
 MY_HTTPD=/etc/httpd/conf.d/zzz-p36.conf
-MYSQL=/etc/my.cnf
-MY_CNF=/etc/my.cnf.d/zzz-p36.cnf
+MY_CNF=/var/lib/mysql/my.cnf
 MY_PHP=/etc/php.d/zzz-p36.ini
 MY_MONIT=/etc/monit.d/zzz-p36
 
@@ -84,7 +85,6 @@ run updatedb
 install sysstat
 install chrony
 run wget http://www.pixelbeat.org/scripts/ps_mem.py -O ~/ps_mem.py
-run chmod u+x *.py
 install rsyslog
 install git
 install gcc
@@ -151,14 +151,13 @@ htpasswd -c /etc/httpd/.htsecret monter
 #echo 'monter:$apr1$s0h/6BzS$DcRU.....3MNXDxkoInSa/' > /etc/httpd/.htsecret
 run chmod 444 /etc/httpd/.htsecret
 
+run apachectl status
+
 #--------------------------------------------------------------
 echo -e "[\033[33m*\033[0m] Installing and configure MySQL 5.6"
 run wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
 run rpm -Uvh mysql-community-release-el7-5.noarch.rpm
 install mysql-community-server
-cat >> $MYSQL <<END
-!includedir /etc/my.cnf.d/
-END
 run systemctl enable mysqld.service
 run systemctl start mysqld.service
 
@@ -180,6 +179,7 @@ mysql_secure_installation
 echo "Sprawdzenie konfiguracji MySQL"
 /usr/sbin/mysqld --help --verbose --skip-networking --pid-file=/var/run/mysqld/mysqld.pid 1>/dev/null >> $LOG
 
+MEM_SIZE=$(grep -m 1 "MemTotal" /proc/meminfo | awk '{ print $2 }')
 if [ $MEM_SIZE -ge 16000000 ]; then
   TABLE-OPEN-CACHE=10240
   INNODB-LOG-FILE-SIZE=256M
@@ -239,9 +239,8 @@ init-connect                   = 'SET NAMES utf8'
 END
 
 # mysqltuner.pl - skrypt sprawdzający konfigurację MySQ
-run cd /opt
 run git clone https://github.com/major/MySQLTuner-perl.git
-run ln -s /opt/MySQLTuner-perl/mysqltuner.pl ~/mysqltuner.pl
+run ln -s MySQLTuner-perl/mysqltuner.pl ~/mysqltuner.pl
 
 run systemctl restart mysql
 run systemctl status mysql
@@ -254,13 +253,6 @@ run systemctl status mysql
 # the number of file descriptors that mysqld requires. You can check whether you need to increase
 # the table cache by checking the Opened_tables status variable.
 # @see http://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html
-
-
-
-
-
-
-
 
 ## Konfiguaracja dla 2core 2G
 # table-open-cache               = 4096
@@ -313,13 +305,15 @@ END
 # END
 
 # install_opcache_monitor
-run cd /var/www/$(hostname -f)
-run wget https://raw.github.com/amnuts/opcache-gui/master/index.php -O php-op.php >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+#run cd /var/www/$(hostname -f)
+#run wget https://raw.github.com/amnuts/opcache-gui/master/index.php -O php-op.php >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+run wget https://raw.github.com/amnuts/opcache-gui/master/index.php -O /var/www/$(hostname -f)/php-op.php
 
 install phpmyadmin
 run apachectl restart
 
 reload_httpd
+run apachectl status
 
 #------------------------------------------------------------
 echo -e "[\033[33m*\033[0m] Installing and configure Postfix"
@@ -334,6 +328,7 @@ run newaliases
 #vi /etc/postfix/main.cf
 # testowy email
 echo "This will go into the body of the mail." | mail -s "Hello world" root
+run pastfix status
 
 #----------------------------------------------------------
 echo -e "[\033[33m*\033[0m] Installing and configure Monit"
