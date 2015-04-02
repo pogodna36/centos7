@@ -22,7 +22,7 @@ fi
 
 function pecl_install {
 echo "... instaluję $1"
-pecl install -y $1 >> $LOG 2>&1
+pecl install $1 >> $LOG 2>&1
 OUT=$?
 if [ $OUT -eq 0 ]; then
  echo -e "[\033[32mX\033[0m] $1 installed ok"
@@ -306,7 +306,6 @@ END
 
 pecl_install uploadprogress
 echo "extension=uploadprogress.so" > /etc/php.d/uploadprogress.ini
-END
 
 # cat >> /etc/php5.d/opcache.ini <<END
 # opcache.memory_consumption=64
