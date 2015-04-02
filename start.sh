@@ -77,6 +77,12 @@ net.ipv4.tcp_synack_retries = 3
 END
 run sysctl -p
 
+#---------------------------------------------------
+echo -e "[\033[32m*\033[0m] Link niezbędy dla Rails .........."
+if [ ! -L /dev/fd ]; then
+run ln -s /proc/self/fd /dev/fd
+fi
+
 #------------------------------------------------------------
 echo -e "[\033[32m*\033[0m] Instalacja programów dodatkowych .........."
 install epel-release
