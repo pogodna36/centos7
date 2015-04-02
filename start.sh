@@ -412,3 +412,15 @@ cd ~
 run useradd -s /bin/bash -d /home/monter -m monter
 run usermod -G wheel monter
 passwd monter
+
+#------------------------------------
+# Install Composer globally (if needed).
+run curl -sS https://getcomposer.org/installer | php
+run mv composer.phar /usr/local/bin/composer
+ # Add Composer's global bin directory to the system PATH (recommended):
+run sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+run source $HOME/.bashrc
+# To install Drush 7.x (dev) which is required for Drupal 8:
+run composer global require drush/drush:dev-master
+run drush status
+run   drush dl drush_language
