@@ -30,7 +30,7 @@ fi
 
 
 function run {
-$1 >> $LOG 2>&1
+$1 $2 >> $LOG 2>&1
 OUT=$?
 if [ $OUT -eq 0 ]; then
  echo -e "[\033[32mX\033[0m] $1 run ok"
@@ -39,6 +39,8 @@ else
 fi
 }
 
+#-----------------------------------------
+echo -e "[\033[33m*\033[0m] System update, timezone and tuning"
 yum updatue -y >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Error in yum update"
 timedatectl set-timezone Europe/Warsaw
 
@@ -54,6 +56,8 @@ net.ipv4.tcp_synack_retries = 3
 END
 sysctl -p >> $LOG 2>&1
 
+#------------------------------------------------------------
+echo -e "[\033[33m*\033[0m] Instalacja programów dodatkowych"
 install epel-release
 install sudo
 install curl
@@ -76,7 +80,8 @@ install gcc
 install make
 install jpegoptim
 
-# Instalacja Apache2 na CentOS 7
+# -----------------------------------------------------------
+echo -e "[\033[33m*\033[0m] Installing and configure Apache2"
 install httpd
 systemctl enable httpd.service
 systemctl start httpd.service
@@ -141,7 +146,8 @@ htpasswd -c /etc/httpd/.htsecret monter
 #echo 'monter:$apr1$s0h/6BzS$DcRU.....3MNXDxkoInSa/' > /etc/httpd/.htsecret
 chmod 444 /etc/httpd/.htsecret
 
-# MySQL 5.6
+#--------------------------------------------------------------
+echo -e "[\033[33m*\033[0m] Installing and configure MySQL 5.6"
 wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
 rpm -Uvh mysql-community-release-el7-5.noarch.rpm
 install mysql-community-server
@@ -257,7 +263,8 @@ fi
 # innodb-log-file-size           = 256M
 # innodb-buffer-pool-size        = 12G
 
-# PHP5
+#---------------------------------------------------------
+echo -e "[\033[33m*\033[0m] Installing and configure PHP5"
 rpm -Uvh https://mirror.webtatic.com/yum/el7/epel-release.rpm
 rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
     
@@ -305,7 +312,8 @@ else
 apachectl configtest
 fi
 
-# Postfix
+#------------------------------------------------------------
+echo -e "[\033[33m*\033[0m] Installing and configure Postfix"
 install postfix
 install mailx
 systemctl start postfix
@@ -318,7 +326,8 @@ run newaliases
 # testowy email
 echo "This will go into the body of the mail." | mail -s "Hello world" root
 
-# Monit
+#----------------------------------------------------------
+echo -e "[\033[33m*\033[0m] Installing and configure Monit"
 install monit
 systemctl enable monit
 systemctl start monit
