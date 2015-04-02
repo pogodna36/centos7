@@ -28,21 +28,32 @@ else
 fi
 }
 
+function reload_httpd {
+# You can see, the output Syntax OK is written to stderr,
+# causes the ouput can not save to var variable.
+# You can make it done, by redirect stderr to stdout.
+if [[ $(apachectl configtest 2>&1) = "Syntax OK" ]]; then
+  run apachectl restart
+else
+  run apachectl configtest
+fi
+}
 
 function run {
-$1 $2 >> $LOG 2>&1
+$@ >> $LOG 2>&1
 OUT=$?
 if [ $OUT -eq 0 ]; then
- echo -e "[\033[32mX\033[0m] $1 run ok"
+ echo -e "[\033[32mX\033[0m] $@ run ok"
 else
-  echo -e "[\033[31mX\033[0m] $1 run error"
+  echo -e "[\033[31mX\033[0m] $@ run error"
 fi
 }
 
 #-----------------------------------------
 echo -e "[\033[33m*\033[0m] System update, timezone and tuning"
-yum updatue -y >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Error in yum update"
+yum update -y >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Error in yum update"
 timedatectl set-timezone Europe/Warsaw
+run timedatectl
 
 cat >> $SYSCTL <<END
 # When kernel panic's, reboot after 10 second delay
@@ -54,7 +65,7 @@ net.ipv4.tcp_syncookies = 1
 net.ipv4.tcp_max_syn_backlog = 2048
 net.ipv4.tcp_synack_retries = 3
 END
-sysctl -p >> $LOG 2>&1
+run sysctl -p
 
 #------------------------------------------------------------
 echo -e "[\033[33m*\033[0m] Instalacja programów dodatkowych"
@@ -72,8 +83,8 @@ install mlocate
 run updatedb
 install sysstat
 install chronyd
-wget http://www.pixelbeat.org/scripts/ps_mem.py -O ~/ps_mem.py >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
-chmod u+x *.py >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Chmod error"
+run wget http://www.pixelbeat.org/scripts/ps_mem.py -O ~/ps_mem.py
+run chmod u+x *.py
 install rsyslog
 install git
 install gcc
@@ -83,8 +94,8 @@ install jpegoptim
 # -----------------------------------------------------------
 echo -e "[\033[33m*\033[0m] Installing and configure Apache2"
 install httpd
-systemctl enable httpd.service
-systemctl start httpd.service
+run systemctl enable httpd.service
+run systemctl start httpd.service
 
 cat > $MY_HTTPD <<END
 ServerTokens Prod
@@ -114,7 +125,7 @@ KeepAliveTimeout 1
 END
   
 DOMAINNAME=$(hostname -f)
-mkdir /var/www/$DOMAINNAME
+run mkdir /var/www/$DOMAINNAME
 echo "Witaj na $DOMAINNAME" >> /var/www/$DOMAINNAME/index.html
 echo "<?php phpinfo(); ?>" >> /var/www/$DOMAINNAME/info.php
 cat > /etc/httpd/conf.d/$DOMAINNAME.conf <<END
@@ -132,34 +143,28 @@ cat > /etc/httpd/conf.d/$DOMAINNAME.conf <<END
 	</Directory>
 </VirtualHost>
 END
-# You can see, the output Syntax OK is written to stderr,
-# causes the ouput can not save to var variable.
-# You can make it done, by redirect stderr to stdout.
-if [[ $(apachectl configtest 2>&1) = "Syntax OK" ]]; then
-  apachectl restart >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Apache restart error"
-else
-  apachectl configtest
-fi
+
+reload_httpd
 
 echo "Wprowadź hasło dostępu do statystyk serwera www"
 htpasswd -c /etc/httpd/.htsecret monter
 #echo 'monter:$apr1$s0h/6BzS$DcRU.....3MNXDxkoInSa/' > /etc/httpd/.htsecret
-chmod 444 /etc/httpd/.htsecret
+run chmod 444 /etc/httpd/.htsecret
 
 #--------------------------------------------------------------
 echo -e "[\033[33m*\033[0m] Installing and configure MySQL 5.6"
-wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
-rpm -Uvh mysql-community-release-el7-5.noarch.rpm
+run wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
+run rpm -Uvh mysql-community-release-el7-5.noarch.rpm
 install mysql-community-server
 cat >> $MYSQL <<END
 !includedir /etc/my.cnf.d/
 END
-systemctl enable mysqld.service
-systemctl start mysqld.service
+run systemctl enable mysqld.service
+run systemctl start mysqld.service
 
-mkdir /var/lib/mysql/binlogs
-chmod 770 /var/lib/mysql/binlogs
-chown mysql:mysql /var/lib/mysql/binlogs
+run mkdir /var/lib/mysql/binlogs
+run chmod 770 /var/lib/mysql/binlogs
+run chown mysql:mysql /var/lib/mysql/binlogs
 
 echo "Podaj hasło dla MYSQL: "
 read MYSQL_PASSWORD
@@ -173,7 +178,7 @@ chmod 400 $HOME/.my.cnf
 mysql_secure_installation
 
 echo "Sprawdzenie konfiguracji MySQL"
-/usr/sbin/mysqld --help --verbose --skip-networking --pid-file=/var/run/mysqld/mysqld.pid 1>/dev/null
+/usr/sbin/mysqld --help --verbose --skip-networking --pid-file=/var/run/mysqld/mysqld.pid 1>/dev/null >> $LOG
 
 cat >> $MY_CNF <<END
 [mysqld]
@@ -216,12 +221,12 @@ init-connect                   = 'SET NAMES utf8'
 END
 
 # mysqltuner.pl - skrypt sprawdzający konfigurację MySQ
-cd /opt
-git clone https://github.com/major/MySQLTuner-perl.git
-ln -s /opt/MySQLTuner-perl/mysqltuner.pl ~/mysqltuner.pl
+run cd /opt
+run git clone https://github.com/major/MySQLTuner-perl.git
+run ln -s /opt/MySQLTuner-perl/mysqltuner.pl ~/mysqltuner.pl
 
-systemctl restart mysql
-systemctl status mysql
+run systemctl restart mysql
+run systemctl status mysql
 
 ####################################################################################################
 # The table_open_cache and max_connections system variables affect the maximum number of files the server keeps open. 
@@ -265,8 +270,8 @@ fi
 
 #---------------------------------------------------------
 echo -e "[\033[33m*\033[0m] Installing and configure PHP5"
-rpm -Uvh https://mirror.webtatic.com/yum/el7/epel-release.rpm
-rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+run rpm -Uvh https://mirror.webtatic.com/yum/el7/epel-release.rpm
+run rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
     
 install php56w
 install php56w-opcache
@@ -299,25 +304,20 @@ END
 # END
 
 # install_opcache_monitor
-cd /var/www/$(hostname -f)
-wget https://raw.github.com/amnuts/opcache-gui/master/index.php -O php-op.php >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
+run cd /var/www/$(hostname -f)
+run wget https://raw.github.com/amnuts/opcache-gui/master/index.php -O php-op.php >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Install error"
 
 install phpmyadmin
-apachectl restart
+run apachectl restart
 
-if [[ $(apachectl configtest 2>&1) = "Syntax OK" ]]; then
-apachectl restart
-apachectl status
-else
-apachectl configtest
-fi
+reload_httpd
 
 #------------------------------------------------------------
 echo -e "[\033[33m*\033[0m] Installing and configure Postfix"
 install postfix
 install mailx
-systemctl start postfix
-systemctl enable postfix
+run systemctl start postfix
+run systemctl enable postfix
 echo "Podaj alias dla poczty do root'a: "
 read ROOT_ALIAS
 echo "root: $ROOT_ALIAS" >> /etc/aliases
@@ -329,8 +329,8 @@ echo "This will go into the body of the mail." | mail -s "Hello world" root
 #----------------------------------------------------------
 echo -e "[\033[33m*\033[0m] Installing and configure Monit"
 install monit
-systemctl enable monit
-systemctl start monit
+run systemctl enable monit
+run systemctl start monit
 
 vi /etc/monitrc
 # Komentujemy ten fragment:
@@ -373,9 +373,9 @@ group system
 END
 
 if [[ $(monit -t 2>&1) = "Control file syntax OK" ]]; then
-  monit reload
+  run monit reload
 else
-  monit -t
+  run monit -t
 fi
 
-monit status
+run monit status
