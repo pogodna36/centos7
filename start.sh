@@ -336,7 +336,7 @@ run newaliases
 #vi /etc/postfix/main.cf
 # testowy email
 echo "This will go into the body of the mail." | mail -s "Hello world" root
-run pastfix status
+run postfix status
 
 #----------------------------------------------------------
 echo -e "[\033[33m*\033[0m] Installing and configure Monit"
