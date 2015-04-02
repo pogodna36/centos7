@@ -1,8 +1,12 @@
 #!/bin/bash
 
-echo "Podaj hasło dla MYSQL: "
-read MYSQL_PASSWORD
-
+LOG=/root/log_script.log
+SYSCTL=/etc/sysctl.conf
+MY_HTTPD=/etc/httpd/conf.d/zzz-p36.conf
+MYSQL=/etc/my.cnf
+MY_CNF=/etc/my.cnf.d/zzz-p36.cnf
+MY_PHP=/etc/php.d/zzz-p36.ini
+MY_MONIT=/etc/monit.d/zzz-p36
 
 function install {
 yum install -y $1 >> $LOG 2>&1
@@ -24,7 +28,7 @@ else
 fi
 }
 
-LOG=/root/log_script.log
+
 function run {
 $1 >> $LOG 2>&1
 OUT=$?
@@ -35,13 +39,10 @@ else
 fi
 }
 
-
-
-LOG=/root/log_script.log
 yum updatue -y >> $LOG 2>&1 || echo -e "[\033[31mX\033[0m] Error in yum update"
 timedatectl set-timezone Europe/Warsaw
 
-cat >> /etc/sysctl.conf <<END
+cat >> $SYSCTL <<END
 # When kernel panic's, reboot after 10 second delay
 kernel.panic = 10
 kernel.panic_on_oops = 1
@@ -80,7 +81,7 @@ install httpd
 systemctl enable httpd.service
 systemctl start httpd.service
 
-cat > /etc/httpd/conf.d/zzz-p36.conf <<END
+cat > $MY_HTTPD <<END
 ServerTokens Prod
 KeepAlive Off
 KeepAliveTimeout 1
@@ -144,7 +145,7 @@ chmod 444 /etc/httpd/.htsecret
 wget http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
 rpm -Uvh mysql-community-release-el7-5.noarch.rpm
 install mysql-community-server
-cat >> /etc/my.cnf <<END
+cat >> $MYSQL <<END
 !includedir /etc/my.cnf.d/
 END
 systemctl enable mysqld.service
@@ -154,6 +155,8 @@ mkdir /var/lib/mysql/binlogs
 chmod 770 /var/lib/mysql/binlogs
 chown mysql:mysql /var/lib/mysql/binlogs
 
+echo "Podaj hasło dla MYSQL: "
+read MYSQL_PASSWORD
 cat > $HOME/.my.cnf <<END
 [client]
 user=root
@@ -166,7 +169,6 @@ mysql_secure_installation
 echo "Sprawdzenie konfiguracji MySQL"
 /usr/sbin/mysqld --help --verbose --skip-networking --pid-file=/var/run/mysqld/mysqld.pid 1>/dev/null
 
-MY_CNF=/etc/my.cnf.d/p36.cnf
 cat >> $MY_CNF <<END
 [mysqld]
 # MyISAM #
@@ -190,14 +192,14 @@ max-connections                = 500
 thread-cache-size              = 50
 open-files-limit               = 65535
 table-definition-cache         = 4096
-#table-open-cache              = 4096
+table-open-cache              = $TABLE-OPEN-CACHE
 # INNODB #
 innodb-flush-method            = O_DIRECT
 innodb-log-files-in-group      = 2
-#innodb-log-file-size          = 128M
+innodb-log-file-size          = $INNODB-LOG-FILE-SIZE
 innodb-flush-log-at-trx-commit = 1
 innodb-file-per-table          = 1
-#innodb-buffer-pool-size       = 2G
+innodb-buffer-pool-size       = $INNODB-BUFFER-POOL-SIZE
 # LOGGING #
 log-queries-not-using-indexes  = 1
 slow-query-log                 = 1
@@ -208,9 +210,9 @@ init-connect                   = 'SET NAMES utf8'
 END
 
 # mysqltuner.pl - skrypt sprawdzający konfigurację MySQ
-cd $HOME
+cd /opt
 git clone https://github.com/major/MySQLTuner-perl.git
-ln -s ~/MySQLTuner-perl/mysqltuner.pl ~/mysqltuner.pl
+ln -s /opt/MySQLTuner-perl/mysqltuner.pl ~/mysqltuner.pl
 
 systemctl restart mysql
 systemctl status mysql
@@ -223,6 +225,22 @@ systemctl status mysql
 # the number of file descriptors that mysqld requires. You can check whether you need to increase
 # the table cache by checking the Opened_tables status variable.
 # @see http://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html
+
+if [ $OUT -eq 0 ]; then
+  TABLE-OPEN-CACHE=4096
+  INNODB-LOG-FILE-SIZE=128M
+  INNODB-BUFFER-POOL-SIZE=1456M
+elif
+  TABLE-OPEN-CACHE=4096
+  INNODB-LOG-FILE-SIZE=128M
+  INNODB-BUFFER-POOL-SIZE=2G
+elif
+  TABLE-OPEN-CACHE=10240
+  INNODB-LOG-FILE-SIZE=256M
+  INNODB-BUFFER-POOL-SIZE=12G
+
+fi
+}
 
 ## Konfiguaracja dla 2core 2G
 # table-open-cache               = 4096
@@ -250,7 +268,7 @@ install php56w-gd
 install php56w-pear
 install php56w-devel
 
-cat > /etc/php.d/zzz-p36.ini <<END
+cat > $MY_PHP <<END
 date.timezone = Europe/Warsaw
 mbstring.language=UTF-8
 mbstring.internal_encoding=UTF-8
@@ -265,8 +283,7 @@ post_max_size = 20M
 END
 
 pecl_install uploadprogress
-cat > /etc/php.d/uploadprogress.ini <<END
-extension=uploadprogress.so
+echo "extension=uploadprogress.so" > /etc/php.d/uploadprogress.ini
 END
 
 # cat >> /etc/php5.d/opcache.ini <<END
@@ -296,7 +313,7 @@ systemctl enable postfix
 echo "Podaj alias dla poczty do root'a: "
 read ROOT_ALIAS
 echo "root: $ROOT_ALIAS" >> /etc/aliases
-newaliases
+run newaliases
 #vi /etc/postfix/main.cf
 # testowy email
 echo "This will go into the body of the mail." | mail -s "Hello world" root
@@ -317,7 +334,7 @@ set httpd port 2812 and
     allow @users readonly  # allow users of group 'users' to connect readonly
 FRAGMENT
 
-cat >> /etc/monit.d/my <<END
+cat >> $MY_MONIT <<END
 # przesłaniamy plik monitrc
 set httpd port 2812 and
 allow 0.0.0.0/0.0.0.0
