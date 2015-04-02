@@ -401,10 +401,14 @@ run monit status
 #-------------------------------------------------------
 echo -e "[\033[32m*\033[0m] Installing TCPDF .........."
 cd /var/www/$(hostname -f)
-wget http://sourceforge.net/projects/tcpdf/files/tcpdf_6_0_099.zip
+run wget http://sourceforge.net/projects/tcpdf/files/tcpdf_6_0_099.zip
 unzip tcpdf*
 rm -f tcpdf_6_0_*.zip
 mkdir tcpdf/images
 chmod 777 /var/www/$(hostname -f)/tcpdf/images
 cd ~
 
+#--------------------------------------------
+run useradd -s /bin/bash -d /home/monter -m monter
+run usermod -G wheel monter
+passwd monter
