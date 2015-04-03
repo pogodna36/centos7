@@ -2,7 +2,7 @@
 
 REMOTE_HOST=ovh2
 REMOTE_DIR=/var/backup/binlog
-
+MYSQL_DIR=/var/lib/mysql/binlogs
 
 mysql=$(which mysql)
 mysqladmin=$(which mysqladmin)
@@ -14,7 +14,7 @@ tail=$(which tail)
 basename=$(which basename)
 xargs=$(which xargs)
 
-MYSQL_DIR=/var/lib/mysql
+
 
 
 # flush the binary logs so a new log file is opened:
