@@ -118,6 +118,7 @@ install gcc
 install make
 install jpegoptim
 install rsync
+install lzo
 
 # -----------------------------------------------------------
 echo -e "[\033[32m*\033[0m] Installing and configure Apache2 .........."
