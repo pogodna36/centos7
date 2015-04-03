@@ -105,6 +105,7 @@ install git
 install gcc
 install make
 install jpegoptim
+install rsync
 
 # -----------------------------------------------------------
 echo -e "[\033[32m*\033[0m] Installing and configure Apache2 .........."
