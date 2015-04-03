@@ -1,4 +1,4 @@
-#!/bin/Bash
+#!/bin/bash
 #
 # SCRIPT: generic_rsync.Bash
 # AUTHOR: Randy Michael
