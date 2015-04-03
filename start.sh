@@ -419,6 +419,11 @@ run useradd -s /bin/bash -d /home/monter -m monter
 run usermod -G wheel monter
 passwd monter
 
+echo 'export PS1="\[\e[31;1m\][\u@\[\e[34;1m\]OVH \w]$ \[\e[0m\]"' >> /home/monter/.bashrc
+echo "export EDITOR=vim" >> /home/monter/.bashrc
+echo "alias vi='$(which vim)'" >> /home/monter/.bashrc
+echo "alias mc='mc -S dark'" >> /home/monter/.bashrc
+
 #------------------------------------
 # Install Composer globally (if needed).
 run curl -sS https://getcomposer.org/installer | php
