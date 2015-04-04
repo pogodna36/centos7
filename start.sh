@@ -426,7 +426,7 @@ run monit status
 echo -e "[\033[32m*\033[0m] Installing TCPDF .........."
 cd /var/www/$(hostname -f)
 run wget http://sourceforge.net/projects/tcpdf/files/tcpdf_6_0_099.zip
-unzip tcpdf*
+run unzip tcpdf*
 rm -f tcpdf_6_0_*.zip
 mkdir tcpdf/images
 chmod 777 /var/www/$(hostname -f)/tcpdf/images
@@ -448,7 +448,7 @@ echo "alias mc='mc -S dark'" >> /home/monter/.bashrc
 curl -sS https://getcomposer.org/installer | php
 run mv composer.phar /usr/local/bin/composer
  # Add Composer's global bin directory to the system PATH (recommended):
-run sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+run sed -i 'export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
 run source $HOME/.bashrc
 # To install Drush 7.x (dev) which is required for Drupal 8:
 run composer global require drush/drush:dev-master
