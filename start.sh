@@ -59,11 +59,7 @@ fi
 
 cd ~
 
-echo 'export PS1="\[\e[31;1m\][\u@\[\e[34;1m\]$FRIENDLY_SERVER_NAME \w]# \[\e[0m\]"' >> ~/.bashrc
-echo "export EDITOR=vim" >> ~/.bashrc
-echo "alias vi='$(which vim)'" >> ~/.bashrc
-echo "alias mc='mc -S dark'" >> ~/.bashrc
-. .bashrc
+
 
 #-----------------------------------------
 echo -e "[\033[32m*\033[0m] System update .........."
@@ -99,6 +95,7 @@ fi
 echo -e "[\033[32m*\033[0m] Instalacja programów dodatkowych .........."
 install epel-release
 install sudo
+install vim
 install curl
 install htop
 install mc
@@ -119,6 +116,13 @@ install make
 install jpegoptim
 install rsync
 install lzop
+
+
+echo 'export PS1="\[\e[31;1m\][\u@\[\e[34;1m\]$FRIENDLY_SERVER_NAME \w]# \[\e[0m\]"' >> ~/.bashrc
+echo "export EDITOR=vim" >> ~/.bashrc
+echo "alias vi='$(which vim)'" >> ~/.bashrc
+echo "alias mc='mc -S dark'" >> ~/.bashrc
+. .bashrc
 
 # -----------------------------------------------------------
 echo -e "[\033[32m*\033[0m] Installing and configure Apache2 .........."
