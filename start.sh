@@ -115,7 +115,7 @@ echo "export PS1='\[\e[31;1m\][\u@\[\e[34;1m\]$FRIENDLY_SERVER_NAME \w]# \[\e[0m
 echo "export EDITOR=vim" >> ~/.bashrc
 echo "alias vi='$(which vim)'" >> ~/.bashrc
 echo "alias mc='mc -S dark'" >> ~/.bashrc
-. .bashrc
+source $HOME/.bashrc
 
 # -----------------------------------------------------------
 echo -e "[\033[32m*\033[0m] Installing and configure Apache2 .........."
@@ -440,8 +440,9 @@ echo "alias mc='mc -S dark'" >> /home/monter/.bashrc
 # Install Composer globally (if needed).
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
- # Add Composer's global bin directory to the system PATH (recommended):
-sed -i 'export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+# Add Composer's global bin directory to the system PATH (recommended):
+#sed -i 'export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+echo 'export PATH="$HOME/.composer/vendor/bin:$PATH"' >> $HOME/.bashrc
 source $HOME/.bashrc
 # To install Drush 7.x (dev) which is required for Drupal 8:
 composer global require drush/drush:dev-master
