@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 FRIENDLY_SERVER_NAME=ovh
 LOG=/root/log_script.log
 SYSCTL=/etc/sysctl.conf
@@ -9,9 +7,6 @@ MY_HTTPD=/etc/httpd/conf.d/zzz-p36.conf
 MY_CNF=/var/lib/mysql/my.cnf
 MY_PHP=/etc/php.d/zzz-p36.ini
 MY_MONIT=/etc/monit.d/zzz-p36
-
-
-
 
 function install {
 echo "... instaluję $1"
@@ -58,8 +53,6 @@ fi
 }
 
 cd ~
-
-
 
 #-----------------------------------------
 echo -e "[\033[32m*\033[0m] System update .........."
@@ -118,7 +111,7 @@ install rsync
 install lzop
 
 
-echo 'export PS1="\[\e[31;1m\][\u@\[\e[34;1m\]$FRIENDLY_SERVER_NAME \w]# \[\e[0m\]"' >> ~/.bashrc
+echo "export PS1='\[\e[31;1m\][\u@\[\e[34;1m\]$FRIENDLY_SERVER_NAME \w]# \[\e[0m\]'" >> ~/.bashrc
 echo "export EDITOR=vim" >> ~/.bashrc
 echo "alias vi='$(which vim)'" >> ~/.bashrc
 echo "alias mc='mc -S dark'" >> ~/.bashrc
@@ -437,7 +430,7 @@ run useradd -s /bin/bash -d /home/monter -m monter
 run usermod -G wheel monter
 passwd monter
 
-echo 'export PS1="\[\e[31;1m\][\u@\[\e[34;1m\]$FRIENDLY_SERVER_NAME \w]$ \[\e[0m\]"' >> /home/monter/.bashrc
+echo "export PS1='\[\e[31;1m\][\u@\[\e[34;1m\]$FRIENDLY_SERVER_NAME \w]$ \[\e[0m\]'" >> /home/monter/.bashrc
 echo "export EDITOR=vim" >> /home/monter/.bashrc
 echo "alias vi='$(which vim)'" >> /home/monter/.bashrc
 echo "alias mc='mc -S dark'" >> /home/monter/.bashrc
