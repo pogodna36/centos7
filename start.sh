@@ -445,7 +445,7 @@ echo "alias mc='mc -S dark'" >> /home/monter/.bashrc
 
 #------------------------------------
 # Install Composer globally (if needed).
-run curl -sS https://getcomposer.org/installer | php
+curl -sS https://getcomposer.org/installer | php
 run mv composer.phar /usr/local/bin/composer
  # Add Composer's global bin directory to the system PATH (recommended):
 run sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
